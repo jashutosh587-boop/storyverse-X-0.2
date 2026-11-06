@@ -210,9 +210,9 @@ function EpisodePlayer({
         return;
       }
       try {
-        const module = await import('hls.js');
+        const hlsModule = await import('hls.js');
         if (disposed) return;
-        const Hls = module.default;
+        const Hls = hlsModule.default;
         if (Hls.isSupported()) {
           const player = new Hls({ enableWorker: true, lowLatencyMode: false });
           hls = player;
