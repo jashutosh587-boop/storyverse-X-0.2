@@ -11,7 +11,6 @@ export type WatchActionState =
   | { status: 'saved'; message: string; at: number }
   | { status: 'error'; message: string; at: number };
 
-const idle: WatchActionState = { status: 'idle' };
 const fail = (message: string): WatchActionState => ({ status: 'error', message, at: Date.now() });
 const text = (formData: FormData, key: string) => {
   const value = formData.get(key);
