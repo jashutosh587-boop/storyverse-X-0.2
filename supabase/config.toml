@@ -1,0 +1,7 @@
+# Supabase CLI project configuration for Storyverse X.
+# Link this local project to your hosted Supabase project with:
+#   npx supabase login
+#   npx supabase link --project-ref YOUR_PROJECT_REF
+# Then apply the versioned migrations with:
+#   npx supabase db push
+project_id = "storyverse-x"
