@@ -35,7 +35,7 @@ export function WatchProviderForm({ titles }: { titles: WatchAdminTitle[] }) {
     <form action={action} className="panel space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Add an official streaming service</h2>
-        <p className="mt-1 text-sm text-muted">Add a verified destination on the rights-holder's official streaming platform. This is a link-out, not an embedded stream.</p>
+        <p className="mt-1 text-sm text-muted">Add a verified destination on the rights-holder&apos;s official streaming platform. This is a link-out, not an embedded stream.</p>
       </div>
       <TitlePicker titles={titles} namePrefix="provider" />
       <div>
@@ -71,7 +71,7 @@ export function WatchProviderForm({ titles }: { titles: WatchAdminTitle[] }) {
       </div>
       <label className="flex items-start gap-3 rounded-lg border border-line p-3 text-sm">
         <input className="mt-1 size-4 accent-[var(--color-violet)]" type="checkbox" name="confirmOfficialLink" required />
-        <span>I checked that this is the provider's official page and that the service information is accurate for the selected country.</span>
+        <span>I checked that this is the provider&apos;s official page and that the service information is accurate for the selected country.</span>
       </label>
       <ActionMessage state={state} />
       <SubmitButton pendingLabel="Saving provider…" className="btn btn-primary w-full">Save official link</SubmitButton>
