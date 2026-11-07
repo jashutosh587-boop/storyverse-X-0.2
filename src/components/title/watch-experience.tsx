@@ -26,6 +26,16 @@ function isUnverifiedProvider(provider: WatchCatalog['providers'][number]) {
   }
   return normalizedName.includes('aniwave') || hostname.includes('aniwave');
 }
+
+function isDemoStreamUrl(streamUrl: string) {
+  try {
+    const url = new URL(streamUrl);
+    return url.hostname === 'interactive-examples.mdn.mozilla.net'
+      && url.pathname === '/media/cc0-videos/flower.mp4';
+  } catch {
+    return false;
+  }
+}
 const secondsLabel = (seconds: number) => {
   const total = Math.max(0, Math.floor(seconds));
   const hours = Math.floor(total / 3600);
@@ -49,12 +59,13 @@ export function WatchExperience({
   catalog: WatchCatalog;
   isSignedIn: boolean;
 }) {
-  const firstEpisode = catalog.episodes.find((episode) => !episode.completed) ?? catalog.episodes[0] ?? null;
+  const playableEpisodes = catalog.episodes.filter((episode) => !isDemoStreamUrl(episode.stream_url));
+  const firstEpisode = playableEpisodes.find((episode) => !episode.completed) ?? playableEpisodes[0] ?? null;
   const visibleProviders = catalog.providers.filter((provider) => !isUnverifiedProvider(provider));
   const [selectedId, setSelectedId] = useState(firstEpisode?.id ?? '');
   const [saveMessage, setSaveMessage] = useState('');
   const [progressById, setProgressById] = useState<Record<string, { position_seconds: number; duration_seconds: number | null; completed: boolean }>>({});
-  const episodes = catalog.episodes.map((episode) => ({ ...episode, ...(progressById[episode.id] ?? {}) }));
+  const episodes = playableEpisodes.map((episode) => ({ ...episode, ...(progressById[episode.id] ?? {}) }));
   const activeEpisode = episodes.find((episode) => episode.id === selectedId) ?? firstEpisode;
   const updateProgress = (episodeId: string, progress: { position_seconds: number; duration_seconds: number; completed: boolean }) => {
     setProgressById((current) => ({ ...current, [episodeId]: progress }));
@@ -117,7 +128,7 @@ export function WatchExperience({
             <h3 className="text-sm font-semibold">Episodes</h3>
             <p className="mt-1 text-xs text-muted">Only licensed MP4 or HLS streams can play in this player.</p>
           </div>
-          {catalog.episodes.length > 0 ? (
+          {episodes.length > 0 ? (
             <label className="min-w-52">
               <span className="sr-only">Choose an episode</span>
               <select className="field" value={activeEpisode?.id ?? ''} onChange={(event) => setSelectedId(event.currentTarget.value)}>
@@ -155,7 +166,7 @@ export function WatchExperience({
           </div>
         ) : (
           <div className="mt-3 rounded-lg border border-dashed border-line p-4">
-            <p className="font-medium">The video player is ready, but no licensed episodes are published yet.</p>
+            <p className="font-medium">No playable licensed episodes are available yet. Demo test clips are not displayed as anime episodes.</p>
             <p className="mt-1 text-sm text-muted">
               Add official platform links or a stream URL that you own or are licensed to distribute from the watch manager.
             </p>
