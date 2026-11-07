@@ -15,6 +15,17 @@ const availabilityLabel: Record<string, string> = {
   buy: 'Buy',
   unknown: 'Check provider',
 };
+
+function isUnverifiedProvider(provider: WatchCatalog['providers'][number]) {
+  const normalizedName = provider.provider_name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let hostname = '';
+  try {
+    hostname = new URL(provider.url).hostname.toLowerCase().replace(/^www\\./, '');
+  } catch {
+    return true;
+  }
+  return normalizedName.includes('aniwave') || hostname.includes('aniwave');
+}
 const secondsLabel = (seconds: number) => {
   const total = Math.max(0, Math.floor(seconds));
   const hours = Math.floor(total / 3600);
@@ -39,6 +50,7 @@ export function WatchExperience({
   isSignedIn: boolean;
 }) {
   const firstEpisode = catalog.episodes.find((episode) => !episode.completed) ?? catalog.episodes[0] ?? null;
+  const visibleProviders = catalog.providers.filter((provider) => !isUnverifiedProvider(provider));
   const [selectedId, setSelectedId] = useState(firstEpisode?.id ?? '');
   const [saveMessage, setSaveMessage] = useState('');
   const [progressById, setProgressById] = useState<Record<string, { position_seconds: number; duration_seconds: number | null; completed: boolean }>>({});
@@ -60,9 +72,12 @@ export function WatchExperience({
 
       <div>
         <h3 className="text-sm font-semibold">Official streaming services</h3>
-        {catalog.providers.length > 0 ? (
+        {catalog.providers.length > visibleProviders.length ? (
+          <p role="note" className="mt-2 text-xs text-muted">A provider destination was hidden because it could not be verified as an official streaming service.</p>
+        ) : null}
+        {visibleProviders.length > 0 ? (
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            {catalog.providers.map((provider) => {
+            {visibleProviders.map((provider) => {
               const href = safeExternalUrl(provider.url);
               if (!href) return null;
               return (
@@ -220,7 +235,7 @@ function EpisodePlayer({
           player.attachMedia(video);
           player.on(Hls.Events.MANIFEST_PARSED, resume);
           player.on(Hls.Events.ERROR, (_event, data) => {
-            if (data.fatal && !disposed) setPlaybackError('The licensed stream could not be loaded. Check its URL, CORS settings and stream availability.');
+            if (data.fatal && !disposed) setPlaybackError('This video source is unavailable or blocked. Replace it with an HTTPS MP4/HLS URL you own or are licensed to distribute, or use an official provider link above.');
           });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
           video.src = source;
@@ -284,7 +299,7 @@ function EpisodePlayer({
           onTimeUpdate={() => void persist(false)}
           onPause={() => void persist(false, true)}
           onEnded={() => void persist(true)}
-          onError={() => setPlaybackError('Playback failed. The media URL may be unavailable or the video host may block cross-origin playback.')}
+          onError={() => setPlaybackError('Playback failed because this video source is unavailable or blocked. Replace it with an authorized HTTPS MP4/HLS source, or use an official provider link above.')}
         >
           Your browser does not support HTML video playback.
         </video>
