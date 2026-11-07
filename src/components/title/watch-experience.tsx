@@ -20,7 +20,7 @@ function isUnverifiedProvider(provider: WatchCatalog['providers'][number]) {
   const normalizedName = provider.provider_name.toLowerCase().replace(/[^a-z0-9]/g, '');
   let hostname = '';
   try {
-    hostname = new URL(provider.url).hostname.toLowerCase().replace(/^www\\./, '');
+    hostname = new URL(provider.url).hostname.toLowerCase().replace(/^www\./, '');
   } catch {
     return true;
   }
