@@ -30,8 +30,15 @@ function isUnverifiedProvider(provider: WatchCatalog['providers'][number]) {
 function isDemoStreamUrl(streamUrl: string) {
   try {
     const url = new URL(streamUrl);
-    return url.hostname === 'interactive-examples.mdn.mozilla.net'
-      && url.pathname === '/media/cc0-videos/flower.mp4';
+    const hostname = url.hostname.toLowerCase();
+    return (
+      (hostname === 'interactive-examples.mdn.mozilla.net'
+        && url.pathname === '/media/cc0-videos/flower.mp4')
+      || (hostname === 'download.blender.org'
+        && url.pathname.startsWith('/peach/bigbuckbunny_movies/'))
+      || (hostname === 'raw.githubusercontent.com'
+        && url.pathname.startsWith('/bower-media-samples/big-buck-bunny-480p-30s/'))
+    );
   } catch {
     return false;
   }
